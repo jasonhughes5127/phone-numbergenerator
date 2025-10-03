@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电话号码生成器 | Phone Number Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#1e40af',
+                        accent: '#60a5fa',
+                        neutral: '#f1f5f9',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .shadow-soft {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .transition-smooth {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .lang-active {
+                font-weight: bold;
+                text-decoration: underline;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-phone text-primary text-2xl"></i>
+                <h1 class="text-xl md:text-2xl font-bold text-gray-800" data-i18n="title">电话号码生成器</h1>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#" class="text-gray-600 hover:text-primary transition-smooth" data-i18n="nav.home">首页</a>
+                <a href="#" class="text-gray-600 hover:text-primary transition-smooth" data-i18n="nav.guide">使用指南</a>
+                <a href="#" class="text-gray-600 hover:text-primary transition-smooth" data-i18n="nav.about">关于我们</a>
+            </nav>
+            <div class="flex items-center space-x-3">
+                <button id="lang-zh" class="px-2 py-1 text-sm font-medium text-gray-700 hover:text-primary transition-smooth lang-active">中文</button>
+                <button id="lang-en" class="px-2 py-1 text-sm font-medium text-gray-700 hover:text-primary transition-smooth">English</button>
+                <button id="lang-ja" class="px-2 py-1 text-sm font-medium text-gray-700 hover:text-primary transition-smooth">日本語</button>
+                <button id="lang-de" class="px-2 py-1 text-sm font-medium text-gray-700 hover:text-primary transition-smooth">Deutsch</button>
+                <button id="lang-es" class="px-2 py-1 text-sm font-medium text-gray-700 hover:text-primary transition-smooth">Español</button>
+                <button id="lang-pt" class="px-2 py-1 text-sm font-medium text-gray-700 hover:text-primary transition-smooth">Português</button>
+                <button id="lang-ru" class="px-2 py-1 text-sm font-medium text-gray-700 hover:text-primary transition-smooth">Русский</button>
+                <button class="md:hidden text-gray-600 focus:outline-none">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="flex-grow container mx-auto px-4 py-8 md:py-12">
+        <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-soft p-6 md:p-8">
+            <!-- 标题区域 -->
+            <div class="text-center mb-8">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800 mb-2" data-i18n="heading">生成电话号码</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto" data-i18n="subheading">轻松生成不同国家的测试电话号码，适用于开发、测试和演示场景</p>
+            </div>
+
+            <!-- 生成设置区域 -->
+            <form id="generatorForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 国家选择 -->
+                    <div class="space-y-2">
+                        <label for="country" class="block text-sm font-medium text-gray-700" data-i18n="form.country">选择国家</label>
+                        <div class="relative">
+                            <select id="country" name="country" class="block w-full rounded-lg border-gray-300 bg-white py-3 pl-4 pr-10 text-base focus:border-primary focus:ring-primary focus:outline-none appearance-none transition-smooth">
+                                <option value="cn">中国 (+86)</option>
+                                <option value="us">美国 (+1)</option>
+                                <option value="jp">日本 (+81)</option>
+                                <option value="de">德国 (+49)</option>
+                                <option value="fr">法国 (+33)</option>
+                                <option value="gb">英国 (+44)</option>
+                                <option value="ru">俄罗斯 (+7)</option>
+                                <option value="br">巴西 (+55)</option>
+                                <option value="au">澳大利亚 (+61)</option>
+                                <option value="kr">韩国 (+82)</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <i class="fa fa-chevron-down"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 数量选择 -->
+                    <div class="space-y-2">
+                        <label for="quantity" class="block text-sm font-medium text-gray-700" data-i18n="form.quantity">生成数量</label>
+                        <div class="relative">
+                            <input type="number" id="quantity" name="quantity" min="1" max="200" value="10" class="block w-full rounded-lg border-gray-300 bg-white py-3 px-4 text-base focus:border-primary focus:ring-primary focus:outline-none transition-smooth">
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+                                <span id="quantityValue">10</span>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                            <div id="quantitySlider" class="bg-primary h-2 rounded-full" style="width: 5%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 生成按钮 -->
+                <div class="pt-2">
+                    <button type="submit" class="w-full bg-primary hover:bg-secondary text-white font-medium py-3 px-6 rounded-lg transition-smooth flex items-center justify-center space-x-2 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30">
+                        <i class="fa fa-refresh"></i>
+                        <span data-i18n="form.generate">生成电话号码</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- 结果区域 -->
+            <div id="resultsContainer" class="mt-10 space-y-4 hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800" data-i18n="results.title">生成结果</h3>
+                    <div class="flex space-x-2">
+                        <button id="copyAllBtn" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-smooth flex items-center space-x-1 text-sm">
+                            <i class="fa fa-clipboard"></i>
+                            <span data-i18n="results.copyAll">复制全部</span>
+                        </button>
+                        <button id="downloadBtn" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-smooth flex items-center space-x-1 text-sm">
+                            <i class="fa fa-download"></i>
+                            <span data-i18n="results.download">导出TXT</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="relative">
+                    <div id="copyNotification" class="absolute top-3 right-3 bg-green-500 text-white px-3 py-1 rounded-md text-sm opacity-0 transition-opacity duration-300">
+                        <i class="fa fa-check mr-1"></i> <span data-i18n="results.copied">已复制</span>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg border border-gray-200 p-4 min-h-[200px] max-h-[400px] overflow-y-auto" id="results">
+                        <!-- 生成的电话号码将显示在这里 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 功能介绍 -->
+        <div class="max-w-4xl mx-auto mt-16 space-y-8">
+            <h2 class="text-2xl font-bold text-center text-gray-800" data-i18n="features.title">为什么选择我们的电话号码生成器？</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-soft hover:shadow-md transition-smooth">
+                    <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa fa-globe text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2" data-i18n="features.countrySupport">多国家支持</h3>
+                    <p class="text-gray-600" data-i18n="features.countrySupportDesc">支持全球多个国家的电话号码格式，满足不同地区的测试需求。</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-soft hover:shadow-md transition-smooth">
+                    <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa fa-bolt text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2" data-i18n="features.fastGenerate">快速生成</h3>
+                    <p class="text-gray-600" data-i18n="features.fastGenerateDesc">瞬间生成大量有效格式的电话号码，提高开发和测试效率。</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-soft hover:shadow-md transition-smooth">
+                    <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa fa-copy text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2" data-i18n="features.easyExport">便捷导出</h3>
+                    <p class="text-gray-600" data-i18n="features.easyExportDesc">一键复制或导出为TXT文件，方便在各种场景中使用。</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa fa-phone text-primary text-xl"></i>
+                        <span class="text-lg font-semibold" data-i18n="footer.title">电话号码生成器</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mt-1" data-i18n="footer.copyright">© 2025 版权所有</p>
+                </div>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-smooth">
+                        <i class="fa fa-github text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-smooth">
+                        <i class="fa fa-twitter text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-smooth">
+                        <i class="fa fa-linkedin text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400 text-sm">
+                <p data-i18n="footer.disclaimer">本工具仅供测试和开发使用，生成的号码请勿用于任何非法活动</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 国际化文本
+        const translations = {
+            'zh': {
+                'title': '电话号码生成器',
+                'nav': {
+                    'home': '首页',
+                    'guide': '使用指南',
+                    'about': '关于我们'
+                },
+                'heading': '生成电话号码',
+                'subheading': '轻松生成不同国家的测试电话号码，适用于开发、测试和演示场景',
+                'form': {
+                    'country': '选择国家',
+                    'quantity': '生成数量',
+                    'generate': '生成电话号码'
+                },
+                'results': {
+                    'title': '生成结果',
+                    'copyAll': '复制全部',
+                    'download': '导出TXT',
+                    'copied': '已复制'
+                },
+                'features': {
+                    'title': '为什么选择我们的电话号码生成器？',
+                    'countrySupport': '多国家支持',
+                    'countrySupportDesc': '支持全球多个国家的电话号码格式，满足不同地区的测试需求。',
+                    'fastGenerate': '快速生成',
+                    'fastGenerateDesc': '瞬间生成大量有效格式的电话号码，提高开发和测试效率。',
+                    'easyExport': '便捷导出',
+                    'easyExportDesc': '一键复制或导出为TXT文件，方便在各种场景中使用。'
+                },
+                'footer': {
+                    'title': '电话号码生成器',
+                    'copyright': '© 2025 版权所有',
+                    'disclaimer': '本工具仅供测试和开发使用，生成的号码请勿用于任何非法活动'
+                },
+                'countryNames': {
+                    'cn': '中国',
+                    'us': '美国',
+                    'jp': '日本',
+                    'de': '德国',
+                    'fr': '法国',
+                    'gb': '英国',
+                    'ru': '俄罗斯',
+                    'br': '巴西',
+                    'au': '澳大利亚',
+                    'kr': '韩国'
+                }
+            },
+            'en': {
+                'title': 'Phone Number Generator',
+                'nav': {
+                    'home': 'Home',
+                    'guide': 'Usage Guide',
+                    'about': 'About Us'
+                },
+                'heading': 'Generate Phone Numbers',
+                'subheading': 'Easily generate test phone numbers for different countries, suitable for development, testing, and demonstration scenarios.',
+                'form': {
+                    'country': 'Select Country',
+                    'quantity': 'Quantity',
+                    'generate': 'Generate Phone Numbers'
+                },
+                'results': {
+                    'title': 'Generated Results',
+                    'copyAll': 'Copy All',
+                    'download': 'Export TXT',
+                    'copied': 'Copied'
+                },
+                'features': {
+                    'title': 'Why Choose Our Phone Number Generator?',
+                    'countrySupport': 'Multi-country Support',
+                    'countrySupportDesc': 'Supports phone number formats from multiple countries worldwide to meet testing requirements for different regions.',
+                    'fastGenerate': 'Fast Generation',
+                    'fastGenerateDesc': 'Instantly generate a large number of valid phone numbers in the correct format to improve development and testing efficiency.',
+                    'easyExport': 'Easy Export',
+                    'easyExportDesc': 'One-click copy or export as a TXT file for convenient use in various scenarios.'
+                },
+                'footer': {
+                    'title': 'Phone Number Generator',
+                    'copyright': '© 2025 All Rights Reserved',
+                    'disclaimer': 'This tool is for testing and development purposes only. Do not use the generated numbers for any illegal activities.'
+                },
+                'countryNames': {
+                    'cn': 'China',
+                    'us': 'United States',
+                    'jp': 'Japan',
+                    'de': 'Germany',
+                    'fr': 'France',
+                    'gb': 'United Kingdom',
+                    'ru': 'Russia',
+                    'br': 'Brazil',
+                    'au': 'Australia',
+                    'kr': 'South Korea'
+                }
+            },
+            'ja': {
+                'title': '電話番号ジェネレーター',
+                'nav': {
+                    'home': 'ホーム',
+                    'guide': '使用ガイド',
+                    'about': 'について'
+                },
+                'heading': '電話番号を生成',
+                'subheading': '開発、テスト、デモンストレーションシナリオに適した、さまざまな国のテスト用電話番号を簡単に生成します。',
+                'form': {
+                    'country': '国を選択',
+                    'quantity': '生成数',
+                    'generate': '電話番号を生成'
+                },
+                'results': {
+                    'title': '生成結果',
+                    'copyAll': '全てコピー',
+                    'download': 'TXTダウンロード',
+                    'copied': 'コピーしました'
+                },
+                'features': {
+                    'title': 'なぜ私たちの電話番号ジェネレーターを選ぶのか？',
+                    'countrySupport': '多国サポート',
+                    'countrySupportDesc': '世界中のさまざまな国の電話番号形式をサポートし、さまざまな地域のテスト要件を満たします。',
+                    'fastGenerate': '高速生成',
+                    'fastGenerateDesc': '正しい形式の大量の有効な電話番号を瞬時に生成し、開発とテストの効率を向上させます。',
+                    'easyExport': '簡単なエクスポート',
+                    'easyExportDesc': 'ワンクリックでコピーまたはTXTファイルとしてエクスポートし、さまざまなシナリオで簡単に使用できます。'
+                },
+                'footer': {
+                    'title': '電話番号ジェネレーター',
+                    'copyright': '© 2025 全著作権所有',
+                    'disclaimer': 'このツールはテストおよび開発目的のみを対象としています。生成された番号を不法活動に使用しないでください。'
+                },
+                'countryNames': {
+                    'cn': '中国',
+                    'us': 'アメリカ合衆国',
+                    'jp': '日本',
+                    'de': 'ドイツ',
+                    'fr': 'フランス',
+                    'gb': '英国',
+                    'ru': 'ロシア',
+                    'br': 'ブラジル',
+                    'au': 'オーストラリア',
+                    'kr': '韓国'
+                }
+            },
+            'de': {
+                'title': 'Telefonnummer-Generator',
+                'nav': {
+                    'home': 'Startseite',
+                    'guide': 'Nutzungsanleitung',
+                    'about': 'Über uns'
+                },
+                'heading': 'Telefonnummern generieren',
+                'subheading': 'Generieren Sie einfach Test-Telefonnummern für verschiedene Länder, ideal für Entwicklungs-, Test- und Demonstrationsszenarien.',
+                'form': {
+                    'country': 'Land auswählen',
+                    'quantity': 'Anzahl generieren',
+                    'generate': 'Telefonnummern generieren'
+                },
+                'results': {
+                    'title': 'Generierte Ergebnisse',
+                    'copyAll': 'Alles kopieren',
+                    'download': 'Als TXT herunterladen',
+                    'copied': 'Kopiert'
+                },
+                'features': {
+                    'title': 'Warum unseren Telefonnummer-Generator wählen?',
+                    'countrySupport': 'Mehrere Länder unterstützen',
+                    'countrySupportDesc': 'Unterstützt Telefonnummerformate von mehreren Ländern weltweit, um die Testanforderungen verschiedener Regionen zu erfüllen.',
+                    'fastGenerate': 'Schnelle Generierung',
+                    'fastGenerateDesc': 'Generieren Sie sofort eine große Anzahl gültiger Telefonnummern im richtigen Format, um die Effizienz der Entwicklung und des Tests zu verbessern.',
+                    'easyExport': 'Einfacher Export',
+                    'easyExportDesc': 'Ein-Klick-Kopieren oder als TXT-Datei exportieren für die bequeme Verwendung in verschiedenen Szenarien.'
+                },
+                'footer': {
+                    'title': 'Telefonnummer-Generator',
+                    'copyright': '© 2025 Alle Rechte vorbehalten',
+                    'disclaimer': 'Dieses Tool dient nur zu Test- und Entwicklungszwecken. Verwenden Sie die generierten Nummern nicht für illegale Aktivitäten.'
+                },
+                'countryNames': {
+                    'cn': 'China',
+                    'us': 'Vereinigte Staaten',
+                    'jp': 'Japan',
+                    'de': 'Deutschland',
+                    'fr': 'Frankreich',
+                    'gb': 'Vereinigtes Königreich',
+                    'ru': 'Russland',
+                    'br': 'Brasilien',
+                    'au': 'Australien',
+                    'kr': 'Südkorea'
+                }
+            },
+            'es': {
+                'title': 'Generador de Números de Teléfono',
+                'nav': {
+                    'home': 'Inicio',
+                    'guide': 'Guía de uso',
+                    'about': 'Sobre nosotros'
+                },
+                'heading': 'Generar Números de Teléfono',
+                'subheading': 'Genere fácilmente números de teléfono de prueba para diferentes países, adecuados para desarrollo, pruebas y escenarios de demostración.',
+                'form': {
+                    'country': 'Seleccionar país',
+                    'quantity': 'Cantidad a generar',
+                    'generate': 'Generar números de teléfono'
+                },
+                'results': {
+                    'title': 'Resultados generados',
+                    'copyAll': 'Copiar todo',
+                    'download': 'Exportar TXT',
+                    'copied': 'Copiado'
+                },
+                'features': {
+                    'title': '¿Por qué elegir nuestro Generador de Números de Teléfono?',
+                    'countrySupport': 'Soporte para múltiples países',
+                    'countrySupportDesc': 'Soporta formatos de números de teléfono de múltiples países en todo el mundo para satisfacer los requisitos de prueba de diferentes regiones.',
+                    'fastGenerate': 'Generación rápida',
+                    'fastGenerateDesc': 'Genere instantáneamente una gran cantidad de números de teléfono válidos en el formato correcto para mejorar la eficiencia del desarrollo y las pruebas.',
+                    'easyExport': 'Exportación fácil',
+                    'easyExportDesc': 'Copie con un solo clic o exporte como archivo TXT para un uso conveniente en varios escenarios.'
+                },
+                'footer': {
+                    'title': 'Generador de Números de Teléfono',
+                    'copyright': '© 2025 Todos los derechos reservados',
+                    'disclaimer': 'Esta herramienta es solo para fines de prueba y desarrollo. No utilice los números generados para actividades ilegales.'
+                },
+                'countryNames': {
+                    'cn': 'China',
+                    'us': 'Estados Unidos',
+                    'jp': 'Japón',
+                    'de': 'Alemania',
+                    'fr': 'Francia',
+                    'gb': 'Reino Unido',
+                    'ru': 'Rusia',
+                    'br': 'Brasil',
+                    'au': 'Australia',
+                    'kr': 'Corea del Sur'
+                }
+            },
+            'pt': {
+                'title': 'Gerador de Números de Telefone',
+                'nav': {
+                    'home': 'Página Inicial',
+                    'guide': 'Guia de Uso',
+                    'about': 'Sobre Nós'
+                },
+                'heading': 'Gerar Números de Telefone',
+                'subheading': 'Gerar facilmente números de telefone de teste para diferentes países, adequados para desenvolvimento, testes e cenários de demonstração.',
+                'form': {
+                    'country': 'Selecionar País',
+                    'quantity': 'Quantidade a Gerar',
+                    'generate': 'Gerar Números de Telefone'
+                },
+                'results': {
+                    'title': 'Resultados Gerados',
+                    'copyAll': 'Copiar Tudo',
+                    'download': 'Exportar TXT',
+                    'copied': 'Copiado'
+                },
+                'features': {
+                    'title': 'Por que escolher nosso Gerador de Números de Telefone?',
+                    'countrySupport': 'Suporte a Múltiplos Países',
+                    'countrySupportDesc': 'Suporta formatos de números de telefone de vários países em todo o mundo para atender aos requisitos de teste de diferentes regiões.',
+                    'fastGenerate': 'Geração Rápida',
+                    'fastGenerateDesc': 'Gere instantaneamente uma grande quantidade de números de telefone válidos no formato correto para melhorar a eficiência do desenvolvimento e dos testes.',
+                    'easyExport': 'Exportação Fácil',
+                    'easyExportDesc': 'Copie com um clique ou exporte como arquivo TXT para uso conveniente em vários cenários.'
+                },
+                'footer': {
+                    'title': 'Gerador de Números de Telefone',
+                    'copyright': '© 2025 Todos os Direitos Reservados',
+                    'disclaimer': 'Esta ferramenta é apenas para fins de teste e desenvolvimento. Não use os números gerados para atividades ilegais.'
+                },
+                'countryNames': {
+                    'cn': 'China',
+                    'us': 'Estados Unidos',
+                    'jp': 'Japão',
+                    'de': 'Alemanha',
+                    'fr': 'França',
+                    'gb': 'Reino Unido',
+                    'ru': 'Rússia',
+                    'br': 'Brasil',
+                    'au': 'Austrália',
+                    'kr': 'Coréia do Sul'
+                }
+            },
+            'ru': {
+                'title': 'Генератор телефонных номеров',
+                'nav': {
+                    'home': 'Главная',
+                    'guide': 'Руководство по использованию',
+                    'about': 'О нас'
+                },
+                'heading': 'Сгенерировать телефонные номера',
+                'subheading': 'Легко генерируйте тестовые телефонные номера для различных стран, подходящие для разработки, тестирования и демонстрационных сценариев.',
+                'form': {
+                    'country': 'Выбрать страну',
+                    'quantity': 'Количество для генерации',
+                    'generate': 'Сгенерировать телефонные номера'
+                },
+                'results': {
+                    'title': 'Сгенерированные результаты',
+                    'copyAll': 'Копировать все',
+                    'download': 'Экспорт TXT',
+                    'copied': 'Скопировано'
+                },
+                'features': {
+                    'title': 'Почему выбирать наш Генератор телефонных номеров?',
+                    'countrySupport': 'Поддержка нескольких стран',
+                    'countrySupportDesc': 'Поддерживает форматы телефонных номеров из нескольких стран мира, чтобы соответствовать требованиям тестирования различных регионов.',
+                    'fastGenerate': 'Быстрая генерация',
+                    'fastGenerateDesc': 'Мгновенно генерируйте большое количество действительных телефонных номеров в правильном формате, чтобы повысить эффективность разработки и тестирования.',
+                    'easyExport': 'Простой экспорт',
+                    'easyExportDesc': 'Одним кликом скопируйте или экспортируйте в виде текстового файла для удобного использования в различных сценариях.'
+                },
+                'footer': {
+                    'title': 'Генератор телефонных номеров',
+                    'copyright': '© 2025 Все права защищены',
+                    'disclaimer': 'Этот инструмент предназначен только для целей тестирования и разработки. Не используйте сгенерированные номера для незаконных действий.'
+                },
+                'countryNames': {
+                    'cn': 'Китай',
+                    'us': 'Соединенные Штаты',
+                    'jp': 'Япония',
+                    'de': 'Германия',
+                    'fr': 'Франция',
+                    'gb': 'Великобритания',
+                    'ru': 'Россия',
+                    'br': 'Бразилия',
+                    'au': 'Австралия',
+                    'kr': 'Южная Корея'
+                }
+            }
+        };
+
+        // 电话号码生成规则（完整定义）
+        const phoneFormats = {
+            'cn': {
+                prefix: '+86',
+                generator: () => {
+                    const prefixes = ['130', '131', '132', '133', '134', '135', '136', '137', '138', '139', 
+                                      '145', '147', '149', '150', '151', '152', '153', '155', '156', '157', 
+                                      '158', '159', '162', '165', '166', '167', '170', '171', '172', '173', 
+                                      '175', '176', '177', '178', '180', '181', '182', '183', '184', '185', 
+                                      '186', '187', '188', '189', '190', '191', '192', '193', '195', '196', 
+                                      '197', '198', '199'];
+                    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+                    let suffix = '';
+                    for (let i = 0; i < 8; i++) {
+                        suffix += Math.floor(Math.random() * 10);
+                    }
+                    return `${prefix}${suffix}`;
+                },
+                formats: [/^1(3[0-9]|4[5-9]|5[0-35-9]|6[2567]|7[0-8]|8[0-9]|9[0-9])\d{8}$/]
+            },
+            'us': {
+                prefix: '+1',
+                generator: () => {
+                    let areaCode = '';
+                    let exchangeCode = '';
+                    let subscriberNumber = '';
+                    
+                    // 生成区号 (不能以0或1开头)
+                    do {
+                        areaCode = Math.floor(100 + Math.random() * 900).toString();
+                    } while (areaCode[0] === '0' || areaCode[0] === '1');
+                    
+                    // 生成交换码 (不能以0或1开头)
+                    do {
+                        exchangeCode = Math.floor(100 + Math.random() * 900).toString();
+                    } while (exchangeCode[0] === '0' || exchangeCode[0] === '1');
+                    
+                    // 生成用户号码
+                    subscriberNumber = Math.floor(1000 + Math.random() * 9000).toString();
+                    
+                    return `(${areaCode}) ${exchangeCode}-${subscriberNumber}`;
+                },
+                formats: [/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/]
+            },
+            'jp': {
+                prefix: '+81',
+                generator: () => {
+                    const types = ['mobile', 'landline'];
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    
+                    if (type === 'mobile') {
+                        const prefixes = ['070', '080', '090'];
+                        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+                        let number = '';
+                        for (let i = 0; i < 8; i++) {
+                            number += Math.floor(Math.random() * 10);
+                        }
+                        return `${prefix}${number}`;
+                    } else {
+                        // 固定电话
+                        const areaCodes = ['03', '04', '05', '06']; // 主要城市
+                        const areaCode = areaCodes[Math.floor(Math.random() * areaCodes.length)];
+                        let number = '';
+                        for (let i = 0; i < 8; i++) {
+                            number += Math.floor(Math.random() * 10);
+                        }
+                        return `${areaCode}${number}`;
+                    }
+                },
+                formats: [
+                    /^(070|080|090)\d{8}$/, // 移动电话
+                    /^(03|04|05|06)\d{8}$/, // 东京、横滨等地区固定电话
+                    /^0[1-9]\d{8,9}$/ // 其他地区固定电话
+                ]
+            },
+            'de': {
+                prefix: '+49',
+                generator: () => {
+                    const types = ['mobile', 'landline'];
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    
+                    if (type === 'mobile') {
+                        const prefixes = ['0151', '0152', '0157', '0160', '0170', '0171', '0175'];
+                        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+                        const length = 11 - prefix.length; // 总长度为11位
+                        let number = '';
+                        for (let i = 0; i < length; i++) {
+                            number += Math.floor(Math.random() * 10);
+                        }
+                        return `${prefix}${number}`;
+                    } else {
+                        // 固定电话
+                        const areaCodeLength = Math.floor(Math.random() * 3) + 2; // 2-4位区号
+                        let areaCode = '';
+                        for (let i = 0; i < areaCodeLength; i++) {
+                            areaCode += Math.floor(Math.random() * 10);
+                        }
+                        const numberLength = Math.floor(Math.random() * 4) + 6; // 6-9位号码
+                        let number = '';
+                        for (let i = 0; i < numberLength; i++) {
+                            number += Math.floor(Math.random() * 10);
+                        }
+                        return `${areaCode}${number}`;
+                    }
+                },
+                formats: [
+                    /^01[5-7]\d{8,9}$/, // 移动电话
+                    /^0[2-9]\d{7,10}$/ // 固定电话
+                ]
+            },
+            'fr': {
+                prefix: '+33',
+                generator: () => {
+                    const types = ['mobile', 'landline'];
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    
+                    let prefix;
+                    if (type === 'mobile') {
+                        prefix = Math.random() < 0.5 ? '06' : '07';
+                    } else {
+                        prefix = '0' + Math.floor(Math.random() * 5 + 1); // 01-05
+                    }
+                    
+                    let number = prefix;
+                    for (let i = 0; i < 8; i++) {
+                        number += Math.floor(Math.random() * 10);
+                    }
+                    
+                    // 格式化，每两位加一个空格
+                    return number.replace(/(\d{2})(?=\d)/g, '$1 ');
+                },
+                formats: [
+                    /^0[67]\d{8}$/, // 移动电话
+                    /^0[1-5]\d{8}$/ // 固定电话
+                ]
+            },
+            'gb': {
+                prefix: '+44',
+                generator: () => {
+                    const types = ['mobile', 'landline'];
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    
+                    let prefix;
+                    if (type === 'mobile') {
+                        const mobilePrefixes = ['071', '072', '073', '074', '075', '076', '077', '078', '079'];
+                        prefix = mobilePrefixes[Math.floor(Math.random() * mobilePrefixes.length)];
+                    } else {
+                        const landlinePrefixes = ['011', '012', '013', '014', '015', '016', '017', '018', '019', '020', '023', '024', '028', '029'];
+                        prefix = landlinePrefixes[Math.floor(Math.random() * landlinePrefixes.length)];
+                    }
+                    
+                    let number = prefix;
+                    const remainingDigits = 11 - prefix.length;
+                    for (let i = 0; i < remainingDigits; i++) {
+                        number += Math.floor(Math.random() * 10);
+                    }
+                    
+                    return number;
+                },
+                formats: [
+                    /^07\d{9}$/, // 移动电话
+                    /^01\d{9}$/, // 固定电话
+                    /^02\d{9}$/  // 固定电话
+                ]
+            },
+            'ru': {
+                prefix: '+7',
+                generator: () => {
+                    const types = ['mobile', 'landline'];
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    
+                    let prefix;
+                    if (type === 'mobile') {
+                        // 随机选择格式 89 或 79
+                        const format = Math.random() < 0.5 ? '89' : '79';
+                        // 移动运营商代码
+                        const operatorCodes = ['01', '02', '03', '04', '05', '06', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '28', '29', '30', '31', '32', '33', '34', '36', '39', '41', '43', '44', '45', '46', '49', '50', '51', '52', '53', '54', '55', '56', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99'];
+                        const operatorCode = operatorCodes[Math.floor(Math.random() * operatorCodes.length)];
+                        prefix = format + operatorCode;
+                    } else {
+                        // 固定电话
+                        const areaCodes = ['831', '843', '846', '863', '812', '813', '814', '815', '816', '817', '818', '819', '821', '823', '824', '825', '826', '827', '829', '833', '834', '835', '836', '837', '838', '839', '841', '842', '844', '845', '847', '848', '849', '851', '852', '853', '854', '855', '856', '857', '858', '859', '861', '862', '864', '865', '866', '867', '868', '869', '871', '872', '873', '874', '875', '876', '877', '878', '879', '881', '882', '883', '884', '885', '886', '887', '888', '889', '891', '892', '893', '894', '895', '896', '897', '898', '899'];
+                        const areaCode = areaCodes[Math.floor(Math.random() * areaCodes.length)];
+                        prefix = areaCode;
+                    }
+                    
+                    let number = prefix;
+                    const remainingDigits = 11 - prefix.length;
+                    for (let i = 0; i < remainingDigits; i++) {
+                        number += Math.floor(Math.random() * 10);
+                    }
+                    
+                    return number;
+                },
+                formats: [
+                    /^89\d{9}$/, // 移动电话格式1
+                    /^79\d{9}$/, // 移动电话格式2
+                    /^8[348]\d{9}$/ // 固定电话
+                ]
+            },
+            'br': {
+                prefix: '+55',
+                generator: () => {
+                    // 生成2位区号 (11-99，不包括0和10)
+                    let areaCode;
+                    do {
+                        areaCode = Math.floor(Math.random() * 89 + 11).toString();
+                    } while (areaCode === '10');
+                    
+                    // 生成电话号码
+                    let number = '';
+                    // 第一位数字 (2-8 或 9后跟1-9)
+                    if (Math.random() < 0.5) {
+                        number += Math.floor(Math.random() * 7 + 2); // 2-8
+                    } else {
+                        number += '9' + Math.floor(Math.random() * 9 + 1); // 91-99
+                    }
+                    
+                    // 生成剩余的6位数字
+                    for (let i = 0; i < 6; i++) {
+                        number += Math.floor(Math.random() * 10);
+                    }
+                    
+                    // 格式化：区号用括号，号码用短横线分隔
+                    return `(${areaCode}) ${number.substring(0, 4)}-${number.substring(4)}`;
+                },
+                formats: [
+                    /^\(?[1-9]{2}\)? ?(?:[2-8]|9[1-9])[0-9]{3}\-?[0-9]{4}$/
+                ]
+            },
+            'au': {
+                prefix: '+61',
+                generator: () => {
+                    const types = ['mobile', 'landline'];
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    
+                    let prefix;
+                    if (type === 'mobile') {
+                        prefix = '04';
+                    } else {
+                        const areaCodes = ['02', '03', '05', '07'];
+                        prefix = areaCodes[Math.floor(Math.random() * areaCodes.length)];
+                    }
+                    
+                    let number = prefix;
+                    for (let i = 0; i < 8; i++) {
+                        number += Math.floor(Math.random() * 10);
+                    }
+                    
+                    return number;
+                },
+                formats: [
+                    /^04\d{8}$/, // 移动电话
+                    /^0[2-35-7]\d{8}$/ // 固定电话
+                ]
+            },
+            'kr': {
+                prefix: '+82',
+                generator: () => {
+                    const types = ['mobile', 'landline'];
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    
+                    let prefix;
+                    if (type === 'mobile') {
+                        const mobilePrefixes = ['010', '011', '016', '017', '018', '019'];
+                        prefix = mobilePrefixes[Math.floor(Math.random() * mobilePrefixes.length)];
+                    } else {
+                        if (Math.random() < 0.3) {
+                            prefix = '02'; // 首尔
+                        } else {
+                            const areaCode = Math.floor(Math.random() * 7 + 3); // 3-9
+                            prefix = '0' + areaCode;
+                        }
+                    }
+                    
+                    let number = prefix;
+                    const remainingDigits = type === 'mobile' ? 8 : (prefix === '02' ? 7 : 8);
+                    
+                    // 生成剩余数字
+                    for (let i = 0; i < remainingDigits; i++) {
+                        number += Math.floor(Math.random() * 10);
+                    }
+                    
+                    return number;
+                },
+                formats: [
+                    /^01[016-9]\d{7,8}$/, // 移动电话
+                    /^02\d{7,8}$/, // 首尔固定电话
+                    /^0[3-9]\d{8,9}$/ // 其他地区固定电话
+                ]
+            }
+        };
+
+        // DOM元素
+        let quantityInput, quantityValue, quantitySlider, generatorForm, resultsContainer, results, copyAllBtn, downloadBtn, copyNotification, countrySelect;
+        let langButtons = {};
+
+        // 初始化DOM元素
+        function initDOM() {
+            quantityInput = document.getElementById('quantity');
+            quantityValue = document.getElementById('quantityValue');
+            quantitySlider = document.getElementById('quantitySlider');
+            generatorForm = document.getElementById('generatorForm');
+            resultsContainer = document.getElementById('resultsContainer');
+            results = document.getElementById('results');
+            copyAllBtn = document.getElementById('copyAllBtn');
+            downloadBtn = document.getElementById('downloadBtn');
+            copyNotification = document.getElementById('copyNotification');
+            countrySelect = document.getElementById('country');
+            
+            // 获取所有语言按钮
+            ['zh', 'en', 'ja', 'de', 'es', 'pt', 'ru'].forEach(lang => {
+                langButtons[lang] = document.getElementById(`lang-${lang}`);
+            });
+        }
+
+        // 更新数量滑块
+        function updateQuantitySlider() {
+            const value = parseInt(quantityInput.value);
+            const percentage = (value / 200) * 100;
+            quantitySlider.style.width = `${percentage}%`;
+            quantityValue.textContent = value;
+        }
+
+        // 生成电话号码
+        function generatePhoneNumbers(countryCode, count) {
+            const format = phoneFormats[countryCode];
+            const numbers = [];
+            
+            for (let i = 0; i < count; i++) {
+                let phoneNumber;
+                // 确保生成的号码符合格式
+                do {
+                    phoneNumber = format.generator();
+                } while (!format.formats.some(regex => regex.test(phoneNumber.replace(/\D/g, ''))));
+                
+                // 添加国际前缀
+                numbers.push(`${format.prefix} ${phoneNumber}`);
+            }
+            
+            return numbers;
+        }
+
+        // 显示电话号码
+        function displayPhoneNumbers(numbers) {
+            results.innerHTML = '';
+            
+            numbers.forEach(number => {
+                const numberElement = document.createElement('div');
+                numberElement.className = 'flex items-center justify-between p-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-smooth';
+                
+                const numberText = document.createElement('span');
+                numberText.className = 'text-gray-800 font-medium';
+                numberText.textContent = number;
+                
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'text-gray-400 hover:text-primary transition-smooth p-1.5 rounded-full hover:bg-gray-100';
+                copyBtn.innerHTML = '<i class="fa fa-clipboard"></i>';
+                copyBtn.addEventListener('click', () => copyToClipboard(number));
+                
+                numberElement.appendChild(numberText);
+                numberElement.appendChild(copyBtn);
+                results.appendChild(numberElement);
+            });
+            
+            resultsContainer.classList.remove('hidden');
+            // 平滑滚动到结果区域
+            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // 复制到剪贴板
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showCopyNotification();
+            }).catch(err => {
+                console.error('复制失败: ', err);
+            });
+        }
+
+        // 显示复制通知
+        function showCopyNotification() {
+            copyNotification.style.opacity = '1';
+            setTimeout(() => {
+                copyNotification.style.opacity = '0';
+            }, 2000);
+        }
+
+        // 复制所有电话号码
+        function copyAllNumbers() {
+            const numbers = Array.from(results.querySelectorAll('span')).map(span => span.textContent);
+            const text = numbers.join('\n');
+            copyToClipboard(text);
+        }
+
+        // 下载为TXT文件
+        function downloadAsTxt() {
+            const numbers = Array.from(results.querySelectorAll('span')).map(span => span.textContent);
+            const text = numbers.join('\n');
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `phone-numbers-${new Date().toISOString().slice(0, 10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // 切换语言
+        function switchLanguage(lang) {
+            document.documentElement.lang = lang;
+            
+            // 更新所有带有data-i18n属性的元素
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                const translation = getNestedTranslation(translations[lang], key);
+                if (translation) {
+                    element.textContent = translation;
+                }
+            });
+            
+            // 更新国家选择框中的国家名称
+            document.querySelectorAll('#country option').forEach(option => {
+                const countryCode = option.value;
+                if (translations[lang].countryNames && translations[lang].countryNames[countryCode]) {
+                    const prefix = option.textContent.match(/\(\+\d+\)/)?.[0] || '';
+                    option.textContent = `${translations[lang].countryNames[countryCode]} ${prefix}`;
+                }
+            });
+            
+            // 更新语言按钮样式
+            Object.values(langButtons).forEach(btn => {
+                btn.classList.remove('lang-active');
+            });
+            if (langButtons[lang]) {
+                langButtons[lang].classList.add('lang-active');
+            }
+        }
+
+        // 获取嵌套的翻译值
+        function getNestedTranslation(obj, key) {
+            return key.split('.').reduce((o, i) => o && o[i], obj);
+        }
+
+        // 初始化事件监听
+        function initEventListeners() {
+            // 数量滑块更新
+            quantityInput.addEventListener('input', updateQuantitySlider);
+            
+            // 表单提交
+            generatorForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const country = countrySelect.value;
+                const count = parseInt(quantityInput.value);
+                
+                if (count > 0) {
+                    const phoneNumbers = generatePhoneNumbers(country, count);
+                    displayPhoneNumbers(phoneNumbers);
+                } else {
+                    resultsContainer.classList.add('hidden');
+                }
+            });
+            
+            // 复制所有按钮
+            copyAllBtn.addEventListener('click', copyAllNumbers);
+            
+            // 下载按钮
+            downloadBtn.addEventListener('click', downloadAsTxt);
+            
+            // 语言切换按钮
+            Object.keys(langButtons).forEach(lang => {
+                if (langButtons[lang]) {
+                    langButtons[lang].addEventListener('click', () => switchLanguage(lang));
+                }
+            });
+            
+            // 初始更新滑块
+            updateQuantitySlider();
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initDOM();
+            initEventListeners();
+            switchLanguage('zh'); // 默认中文
+        });
+    </script>
+</body>
+</html>
